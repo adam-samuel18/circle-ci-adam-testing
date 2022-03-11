@@ -2,6 +2,7 @@ version: 2.1
 
 orbs: 
     node: circleci/node@5.0.0
+    snyk: snyk/snyk@1.1.2
 
 jobs:
   build-and-test:
@@ -13,8 +14,18 @@ jobs:
         - run:
             name: Run tests
             command: npm run test-ci
+
+  dependency-vulnerability-scan:
+    docker:
+      - image: cimg/node:16.14.0
+    steps:
+      - checkout
+      - node/install-packages
+      - snyk/scan:
+          fail-on-issues: true
       
 workflows:
   run-tests:
     jobs:
       - build-and-test
+      - dependency-vulnerability-scan
